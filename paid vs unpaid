@@ -1,0 +1,71 @@
+data_track = read.csv("C:/Users/user/Desktop/New folder (3)/user_data_set/user_data_set/track_subscription_data.csv")
+data_pur = read.csv("C:/Users/user/Desktop/New folder (3)/user_data_set/user_data_set/user_purchase_data.csv")
+data_quiz = read.csv("C:/Users/user/Desktop/New folder (3)/user_data_set/user_data_set/user_quiz_attempt_data.csv")
+data_study = read.csv("C:/Users/user/Desktop/New folder (3)/user_data_set/user_data_set/user_studycard_data.csv")
+data_vedio = read.csv("C:/Users/user/Desktop/New folder (3)/user_data_set/user_data_set/user_video_activity_data.csv")
+colnames(data_pur)[colnames(data_pur)=="user_uid"] = "user_id"
+cat1 = ifelse(data_pur$date_of_first_purhcase=="",0,1) # "0" represents as not paid & "1" represents as paid
+class(cat1)
+cat1 = as.factor(cat1)
+df = cbind(data_pur, cat1)
+class(df$date_joined)
+df$date_joined = as.Date(df$date_joined)
+df1 = df[order(df$date_joined, decreasing = FALSE),]
+df_jun = df1[df1$date_joined<="2021-06-07",]
+df_jul = df1[df1$date_joined>="2021-07-01" & df1$date_joined<="2021-07-07",]
+df_aug = df1[df1$date_joined>="2021-08-01" & df1$date_joined<="2021-08-02",]
+# June
+nrow(df_jun[df_jun$cat1,])
+aa = 100*(nrow(df_jun[df_jun$cat1=="1",])/nrow(df_jun[df_jun$cat1,]))
+ab = 100*(nrow(df_jun[df_jun$cat1=="0",])/nrow(df_jun[df_jun$cat1,])) #64% are paid users
+# July
+nrow(df_jul[df_jul$cat1,])
+ba = 100*(nrow(df_jul[df_jul$cat1=="1",])/nrow(df_jul[df_jul$cat1,]))
+bb = 100*(nrow(df_jul[df_jul$cat1=="0",])/nrow(df_jul[df_jul$cat1,])) #53% are paid users
+# August
+nrow(df_aug[df_aug$cat1,])
+ca = 100*(nrow(df_aug[df_aug$cat1=="1",])/nrow(df_aug[df_aug$cat1,]))
+cb = 100*(nrow(df_aug[df_aug$cat1=="0",])/nrow(df_aug[df_aug$cat1,])) #43% are paid users
+df_jun1 = left_join(df_jun, data_track, by = "user_id")
+df_jun1$track_slug = as.factor(df_jun1$track_slug)
+plot(df_jun1$cat1,df_jun1$track_slug, log = "y")
+df3 = data_vedio[data_vedio$duration==data_vedio$watched_duration,]
+# 1)vedio
+df_vedio1 = left_join(df_jun, data_vedio, by = "user_id")
+ff = which(is.na(df_vedio1))
+df_vedio1 = df_vedio1[-ff,]
+# paid users in the month of june,watched complete vedio 
+df_vedio_Jun = df_vedio1[df_vedio1$duration==df_vedio1$watched_duration & df_vedio1$cat1=="1",]
+which.max(table(df_vedio_Jun$video_id)) #most watched vedio in june by paid users
+# paid users in the month of july,watched complete vedio 
+df_jul1 = left_join(df_jul, data_vedio, by = "user_id")
+gg = which(is.na(df_jul1))
+df_jul1 = df_jul1[-gg,]
+df_vedio_Jul = df_jul1[df_jul1$duration==df_jul1$watched_duration & df_jul1$cat1=="1",]
+which.max(table(df_vedio_Jul$video_id)) #most watched vedio in july by paid users
+# paid users in the month of August,watched complete vedio 
+df_aug1 = left_join(df_aug, data_vedio, by = "user_id")
+hh = which(is.na(df_aug1))
+df_aug1 = df_aug1[-hh,]
+df_vedio_aug = df_aug1[df_aug1$duration==df_aug1$watched_duration & df_aug1$cat1=="1",]
+which.max(table(df_vedio_aug$video_id)) #most watched vedio in august by paid users
+#2)subject category
+# June
+df_jun2 = left_join(df_jun, data_track, by = "user_id")
+df_track_jun = df_jun2[df_jun2$cat1=="1",]
+which.max(table(df_track_jun$track_slug)) #most enrolled course category by paid in the month of june
+df_track_jun0 = df_jun2[df_jun2$cat1=="0",]
+which.max(table(df_track_jun0$track_slug)) #most enrolled course category by unpaid in the month of june
+# July
+df_jul2 = left_join(df_jul, data_track, by = "user_id")
+df_track_jul = df_jul2[df_jul2$cat1=="1",]
+which.max(table(df_track_jul$track_slug)) #most enrolled course category by paid in the month of july
+df_track_jul0 = df_jun2[df_jul2$cat1=="0",]
+which.max(table(df_track_jul0$track_slug)) #most enrolled course category by unpaid in the month of july
+# August
+df_aug2 = left_join(df_aug, data_track, by = "user_id")
+df_track_aug = df_aug2[df_aug2$cat1=="1",]
+which.max(table(df_track_aug$track_slug)) #most enrolled course category by paid in the month of august
+df_track_aug0 = df_aug2[df_aug2$cat1=="0",] 
+which.max(table(df_track_aug0$track_slug)) #most enrolled course category by paid in the month of august
+# Thank you
